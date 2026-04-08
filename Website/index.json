@@ -1,0 +1,12 @@
+{
+  "name": "sizimityper",
+  "id": "io.github.sizimityper.blinking-led-shader",
+  "url": "https://sizimityper.github.io/blinking-led-shader/index.json",
+  "author": "sizimityper",
+  "packages": {
+    "com.sizimityper.blinking-led-shader": {
+      "versions": {}
+    }
+  }
+}
+
