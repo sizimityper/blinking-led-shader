@@ -20,7 +20,7 @@ jobs:
           VERSION=$(jq -r .version Packages/com.sizimityper.blinking-led-shader/package.json)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Create zip (VPM構造: package.json がルートに来るように)
+      - name: Create zip for VPM
         run: |
           cd Packages/com.sizimityper.blinking-led-shader
           zip -r ../../com.sizimityper.blinking-led-shader-${{ steps.version.outputs.version }}.zip .
