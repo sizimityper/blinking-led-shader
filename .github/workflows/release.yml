@@ -1,88 +1,38 @@
-name: Build and Release
+name: Release VPM Package
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'Packages/com.sizimityper.blinking-led-shader/package.json'
-  workflow_dispatch:
+  release:
+    types:
+      - published
 
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Get version from package.json
+      - name: Get version
         id: version
         run: |
           VERSION=$(jq -r .version Packages/com.sizimityper.blinking-led-shader/package.json)
-          ZIPFILE="com.sizimityper.blinking-led-shader-${VERSION}.zip"
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "zipFile=${ZIPFILE}" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Create zip (VPM構造: package.json がルートに来るように)
         run: |
-          cd Packages/com.sizimityper.blinking-led-shader && zip -r ../../${{ steps.version.outputs.zipFile }} .
+          cd Packages/com.sizimityper.blinking-led-shader
+          zip -r ../../com.sizimityper.blinking-led-shader-${{ steps.version.outputs.version }}.zip .
 
-      - name: Create GitHub Release
-        run: |
-          gh release create ${{ steps.version.outputs.version }} \
-            ${{ steps.version.outputs.zipFile }} \
-            --title "${{ steps.version.outputs.version }}" \
-            --generate-notes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload zip to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: com.sizimityper.blinking-led-shader-${{ steps.version.outputs.version }}.zip
 
-      - name: Update VPM listing (Website/index.json)
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          ZIPFILE="${{ steps.version.outputs.zipFile }}"
-          DOWNLOAD_URL="https://github.com/sizimityper/blinking-led-shader/releases/download/${VERSION}/${ZIPFILE}"
-
-          python3 - <<'PYEOF'
-          import json, os, sys
-
-          version = os.environ['VERSION']
-          download_url = os.environ['DOWNLOAD_URL']
-
-          # package.json を読み込む
-          with open('Packages/com.sizimityper.blinking-led-shader/package.json', 'r') as f:
-              pkg = json.load(f)
-
-          # ダウンロードURLを追加
-          pkg['url'] = download_url
-
-          # index.json を更新
-          with open('Website/index.json', 'r') as f:
-              index = json.load(f)
-
-          index['packages']['com.sizimityper.blinking-led-shader']['versions'][version] = pkg
-
-          with open('Website/index.json', 'w') as f:
-              json.dump(index, f, indent=2, ensure_ascii=False)
-              f.write('\n')
-
-          print(f"Updated index.json: added version {version}")
-          PYEOF
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-          DOWNLOAD_URL: https://github.com/sizimityper/blinking-led-shader/releases/download/${{ steps.version.outputs.version }}/${{ steps.version.outputs.zipFile }}
-
-      - name: Commit and push updated listing
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Website/index.json
-          git commit -m "chore: update VPM listing to ${{ steps.version.outputs.version }}"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Trigger VPM listing update
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.VPM_LISTING_TOKEN }}
+          repository: sizimityper/vpm
+          event-type: update-listing
