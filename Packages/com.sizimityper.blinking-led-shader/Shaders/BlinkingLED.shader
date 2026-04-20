@@ -3,29 +3,29 @@ Shader "Sizimityper/BlinkingLED"
     Properties
     {
         // テクスチャ
-        _MainTex ("メインテクスチャ", 2D) = "white" {}
-        _SubTex ("サブテクスチャ (黒=オフ)", 2D) = "black" {}
+        _MainTex ("Main Texture", 2D) = "white" {}
+        _SubTex ("Sub Texture (black = off)", 2D) = "black" {}
 
         // 発光制御
-        [HDR] _Color ("LEDカラー", Color) = (1, 0.2, 0, 1)
-        _EmissionIntensity ("発光強度", Float) = 1.0
-        _MinBrightness ("最小輝度", Range(0, 1)) = 0.0
+        [HDR] _Color ("LED Color", Color) = (1, 0.2, 0, 1)
+        _EmissionIntensity ("Emission Intensity", Float) = 1.0
+        _MinBrightness ("Min Brightness", Range(0, 1)) = 0.0
 
         // 点滅制御
-        [Toggle] _BlinkMode ("点滅モード (0=ステップ, 1=サイン)", Float) = 0
-        _BlinkSpeed ("点滅速度 (Hz)", Float) = 1.0
-        _DutyCycle ("デューティサイクル", Range(0, 1)) = 0.5
-        [Toggle] _InvertBlink ("点滅反転 (NOT)", Float) = 0
+        [Toggle] _BlinkMode ("Blink Mode (0=Step, 1=Sine)", Float) = 0
+        _BlinkSpeed ("Blink Speed (Hz)", Float) = 1.0
+        _DutyCycle ("Duty Cycle", Range(0, 1)) = 0.5
+        [Toggle] _InvertBlink ("Invert Blink (NOT)", Float) = 0
 
         // LEDマスク
-        [Toggle] _MaskMode ("マスクモード (0=グリッド, 1=同心円)", Float) = 0
-        _LedDensity ("LED密度 (グリッド)", Int) = 8
-        _RingCount ("リング数 (同心円)", Int) = 5
-        _DotSize ("ドットサイズ", Range(0, 1)) = 0.4
-        _DotSoftness ("ドットのぼかし", Range(0, 1)) = 0.05
+        [Toggle] _MaskMode ("Mask Mode (0=Grid, 1=Concentric)", Float) = 0
+        _LedDensity ("LED Density (Grid)", Int) = 8
+        _RingCount ("Ring Count (Concentric)", Int) = 5
+        _DotSize ("Dot Size", Range(0, 1)) = 0.4
+        _DotSoftness ("Dot Softness", Range(0, 1)) = 0.05
 
         // パララックス
-        _ParallaxHeight ("パララックス高さ", Float) = 0.02
+        _ParallaxHeight ("Parallax Height", Float) = 0.02
     }
 
     SubShader
